@@ -1,0 +1,404 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans)}
+.wrap{background:#0c0e14;border-radius:12px;overflow:hidden;border:1px solid #1e2235}
+.nav{background:#10121a;border-bottom:1px solid #1e2235;padding:0 16px;display:flex;align-items:center;gap:2px}
+.nav-brand{color:#e2e8f0;font-size:13px;font-weight:500;margin-right:16px;padding:12px 0;white-space:nowrap}
+.nav-brand span{color:#378add}
+.nb{padding:10px 14px;font-size:12px;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.nb.on{color:#e2e8f0;border-bottom-color:#378add}
+.page{display:none;padding:14px;background:#0c0e14}
+.page.on{display:block}
+.row{display:grid;gap:10px;margin-bottom:10px}
+.r4{grid-template-columns:repeat(4,1fr)}
+.r3{grid-template-columns:repeat(3,1fr)}
+.r2{grid-template-columns:1fr 1fr}
+.r21{grid-template-columns:2fr 1fr}
+.r12{grid-template-columns:1fr 2fr}
+.card{background:#141520;border:1px solid #1e2235;border-radius:8px;padding:10px 12px}
+.lbl{font-size:10px;color:#475569;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.big{font-size:22px;font-weight:500;color:#e2e8f0}
+.sub{font-size:11px;color:#64748b;margin-top:2px}
+.up{color:#4ade80}.dn{color:#f87171}.nu{color:#fbbf24}
+.tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:500}
+.tg{background:#14532d;color:#4ade80}
+.tr{background:#4c0519;color:#f87171}
+.ty{background:#422006;color:#fbbf24}
+.tb{background:#1e2d48;color:#7dd3fc}
+.tp{background:#2e1065;color:#c4b5fd}
+.sig-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #1a1f2e;font-size:11px}
+.sig-row:last-child{border-bottom:none}
+.sn{color:#64748b}.sv{font-weight:500}
+.bar-wrap{margin:4px 0}
+.bar-lbl{display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-bottom:2px}
+.bar-bg{background:#1e2235;height:5px;border-radius:3px;overflow:hidden}
+.bar-fg{height:100%;border-radius:3px}
+.stock-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1a1f2e;font-size:12px}
+.stock-row:last-child{border-bottom:none}
+.stock-sym{font-weight:500;color:#e2e8f0;width:70px}
+.stock-price{color:#94a3b8;width:60px}
+.stock-chg{width:50px;text-align:right;font-weight:500}
+.stock-bar{flex:1;height:4px;background:#1e2235;border-radius:2px;overflow:hidden}
+.rec-pill{padding:3px 10px;border-radius:10px;font-size:10px;font-weight:500}
+.buy-pill{background:#14532d;color:#4ade80}
+.hold-pill{background:#422006;color:#fbbf24}
+.avoid-pill{background:#4c0519;color:#f87171}
+.heat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.heat-cell{padding:8px 6px;border-radius:5px;text-align:center}
+.hc-title{font-size:10px;font-weight:500}
+.hc-val{font-size:12px;font-weight:500;margin-top:2px}
+.chat-bubble{padding:7px 10px;border-radius:8px;font-size:11px;line-height:1.55;margin-bottom:6px}
+.cu{background:#1a2744;color:#93c5fd;margin-left:20%}
+.ca{background:#1e2235;color:#cbd5e1;margin-right:10%}
+.ca-name{font-size:9px;color:#378add;margin-bottom:3px}
+.score-ring{width:56px;height:56px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid #15803d}
+.score-val{font-size:18px;font-weight:500;color:#4ade80;line-height:1}
+.score-lbl{font-size:8px;color:#64748b;margin-top:1px}
+.chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{font-size:10px;padding:2px 8px;border-radius:10px;background:#1e2235;color:#94a3b8}
+.chip.on{background:#1a2744;color:#7dd3fc}
+.pager{display:flex;gap:4px;align-items:center;justify-content:center;padding:8px 0}
+.dot-pg{width:6px;height:6px;border-radius:50%;background:#1e2235;cursor:pointer}
+.dot-pg.on{background:#378add;width:16px;border-radius:3px}
+</style>
+
+<div class="wrap">
+  <div class="nav">
+    <div class="nav-brand"><span>Stock</span>AI</div>
+    <div class="nb on" onclick="pg(0)">Overview</div>
+    <div class="nb" onclick="pg(1)">Stock analysis</div>
+    <div class="nb" onclick="pg(2)">AI analyst</div>
+    <div class="nb" onclick="pg(3)">Screener</div>
+    <div class="nb" onclick="pg(4)">Model reports</div>
+  </div>
+
+  <!-- PAGE 0: OVERVIEW -->
+  <div class="page on" id="p0">
+    <div class="row r4">
+      <div class="card"><div class="lbl">Nifty 50</div><div class="big">23,641 <span class="dn" style="font-size:14px">-0.19%</span></div><div class="sub">27 May 2026</div></div>
+      <div class="card"><div class="lbl">Market health</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+          <div class="score-ring"><div class="score-val">72</div><div class="score-lbl">/ 100</div></div>
+          <div><div style="font-size:12px;font-weight:500;color:#4ade80">Bullish</div><div style="font-size:10px;color:#64748b;margin-top:3px">32 BUY signals<br>11 HOLD · 7 AVOID</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="lbl">Today's sentiment</div><div class="big up">+0.38</div><div class="sub">Based on 847 ET headlines</div><div style="margin-top:6px;display:flex;gap:4px"><span class="tag tg">Positive 61%</span><span class="tag ty">Neutral 28%</span><span class="tag tr">Neg 11%</span></div></div>
+      <div class="card"><div class="lbl">FII / DII flow</div><div style="margin-top:4px"><div style="font-size:12px;color:#4ade80;font-weight:500">FII +₹2,140 Cr</div><div style="font-size:12px;color:#f87171;font-weight:500;margin-top:3px">DII -₹890 Cr</div><div style="font-size:10px;color:#64748b;margin-top:3px">Net inflow ₹1,250 Cr</div></div></div>
+    </div>
+
+    <div class="row r21">
+      <div class="card">
+        <div class="lbl">Sector heatmap — 30d return</div>
+        <div class="heat-grid" style="margin-top:6px">
+          <div class="heat-cell" style="background:#14532d"><div class="hc-title" style="color:#4ade80">Energy</div><div class="hc-val" style="color:#4ade80">+8.4%</div></div>
+          <div class="heat-cell" style="background:#14532d"><div class="hc-title" style="color:#4ade80">IT</div><div class="hc-val" style="color:#86efac">+6.1%</div></div>
+          <div class="heat-cell" style="background:#1a3a1a"><div class="hc-title" style="color:#86efac">Healthcare</div><div class="hc-val" style="color:#86efac">+3.2%</div></div>
+          <div class="heat-cell" style="background:#1a2a1a"><div class="hc-title" style="color:#86efac">Industrials</div><div class="hc-val" style="color:#86efac">+2.8%</div></div>
+          <div class="heat-cell" style="background:#1e2235"><div class="hc-title" style="color:#94a3b8">Consumer</div><div class="hc-val" style="color:#94a3b8">+0.4%</div></div>
+          <div class="heat-cell" style="background:#1e2235"><div class="hc-title" style="color:#94a3b8">Utilities</div><div class="hc-val" style="color:#94a3b8">-0.2%</div></div>
+          <div class="heat-cell" style="background:#2d1515"><div class="hc-title" style="color:#fca5a5">Banks</div><div class="hc-val" style="color:#f87171">-2.1%</div></div>
+          <div class="heat-cell" style="background:#4c0519"><div class="hc-title" style="color:#fca5a5">FMCG</div><div class="hc-val" style="color:#f87171">-4.8%</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="lbl">Top AI picks today</div>
+        <div style="margin-top:4px">
+          <div class="stock-row"><span class="stock-sym">RELIANCE</span><span class="stock-price">₹2,847</span><div class="stock-bar"><div class="bar-fg" style="width:88%;background:#4ade80"></div></div><span class="stock-chg up">+1.24%</span><span class="rec-pill buy-pill">BUY 71%</span></div>
+          <div class="stock-row"><span class="stock-sym">TCS</span><span class="stock-price">₹4,120</span><div class="stock-bar"><div class="bar-fg" style="width:76%;background:#4ade80"></div></div><span class="stock-chg up">+0.87%</span><span class="rec-pill buy-pill">BUY 68%</span></div>
+          <div class="stock-row"><span class="stock-sym">INFY</span><span class="stock-price">₹1,892</span><div class="stock-bar"><div class="bar-fg" style="width:70%;background:#4ade80"></div></div><span class="stock-chg up">+0.52%</span><span class="rec-pill buy-pill">BUY 64%</span></div>
+          <div class="stock-row"><span class="stock-sym">SBIN</span><span class="stock-price">₹812</span><div class="stock-bar"><div class="bar-fg" style="width:50%;background:#fbbf24"></div></div><span class="stock-chg dn">-0.31%</span><span class="rec-pill hold-pill">HOLD</span></div>
+          <div class="stock-row"><span class="stock-sym">ITC</span><span class="stock-price">₹438</span><div class="stock-bar"><div class="bar-fg" style="width:25%;background:#f87171"></div></div><span class="stock-chg dn">-1.08%</span><span class="rec-pill avoid-pill">AVOID</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row r3">
+      <div class="card"><div class="lbl">RBI repo rate</div><div class="big">5.25%</div><div class="sub">Last change: Feb 2026 (-25bps)</div></div>
+      <div class="card"><div class="lbl">USD / INR</div><div class="big">₹83.42</div><div class="sub up">Rupee stable this week</div></div>
+      <div class="card"><div class="lbl">Crude oil (WTI)</div><div class="big dn">$71.80</div><div class="sub dn">-2.1% — positive for India</div></div>
+    </div>
+  </div>
+
+  <!-- PAGE 1: STOCK ANALYSIS -->
+  <div class="page" id="p1">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <div style="background:#141520;border:1px solid #378add;border-radius:8px;padding:6px 12px;font-size:13px;color:#e2e8f0;font-weight:500">RELIANCE.NS</div>
+      <div style="font-size:11px;color:#64748b">Live data from yfinance · updated 2 min ago</div>
+      <div style="margin-left:auto;background:#14532d;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;color:#4ade80">BUY — 71% confidence</div>
+    </div>
+
+    <div class="row r4">
+      <div class="card"><div class="lbl">Current price</div><div class="big">₹2,847</div><div class="sub up">+₹34.80 (+1.24%) today</div></div>
+      <div class="card"><div class="lbl">30d prediction</div><div class="big up">+6.8%</div><div class="sub">Target ₹3,041 in 30 days</div></div>
+      <div class="card"><div class="lbl">Stop-loss</div><div class="big dn">₹2,690</div><div class="sub">Based on 2× ATR (₹78)</div></div>
+      <div class="card"><div class="lbl">Model confidence</div><div class="big">71%</div><div class="sub">XGBoost + LightGBM ensemble</div></div>
+    </div>
+
+    <div class="row r21">
+      <div class="card">
+        <div class="lbl">Candlestick chart — live OHLCV (1 year)</div>
+        <svg width="100%" height="130" viewBox="0 0 400 130">
+          <rect width="400" height="130" fill="#0c0e14"/>
+          <polyline points="0,110 17,105 34,100 51,103 68,94 85,89 102,92 119,86 136,81 153,83 170,78 187,72 204,70 221,67 238,72 255,63 272,58 289,60 306,53 323,48 340,46 357,43 374,40 400,37" fill="none" stroke="#378add" stroke-width="1" opacity=".35"/>
+          <polyline points="0,115 17,112 34,109 51,110 68,107 85,104 102,105 119,103 136,100 153,101 170,99 187,97 204,96 221,95 238,97 255,93 272,91 289,91 306,89 323,87 340,86 357,85 374,84 400,83" fill="none" stroke="#64748b" stroke-width=".8" opacity=".4"/>
+          <g>
+            <rect x="3" y="103" width="5" height="7" fill="#4ade80" rx="1"/><rect x="20" y="98" width="5" height="8" fill="#4ade80" rx="1"/>
+            <rect x="37" y="97" width="5" height="6" fill="#f87171" rx="1"/><rect x="54" y="100" width="5" height="7" fill="#4ade80" rx="1"/>
+            <rect x="71" y="92" width="5" height="8" fill="#4ade80" rx="1"/><rect x="88" y="87" width="5" height="6" fill="#f87171" rx="1"/>
+            <rect x="105" y="89" width="5" height="7" fill="#4ade80" rx="1"/><rect x="122" y="83" width="5" height="6" fill="#4ade80" rx="1"/>
+            <rect x="139" y="79" width="5" height="7" fill="#f87171" rx="1"/><rect x="156" y="80" width="5" height="6" fill="#4ade80" rx="1"/>
+            <rect x="173" y="76" width="5" height="7" fill="#4ade80" rx="1"/><rect x="190" y="70" width="5" height="6" fill="#4ade80" rx="1"/>
+            <rect x="207" y="67" width="5" height="7" fill="#f87171" rx="1"/><rect x="224" y="65" width="5" height="6" fill="#4ade80" rx="1"/>
+            <rect x="241" y="69" width="5" height="8" fill="#f87171" rx="1"/><rect x="258" y="61" width="5" height="7" fill="#4ade80" rx="1"/>
+            <rect x="275" y="56" width="5" height="6" fill="#4ade80" rx="1"/><rect x="292" y="58" width="5" height="7" fill="#f87171" rx="1"/>
+            <rect x="309" y="51" width="5" height="6" fill="#4ade80" rx="1"/><rect x="326" y="46" width="5" height="6" fill="#4ade80" rx="1"/>
+            <rect x="343" y="44" width="5" height="6" fill="#4ade80" rx="1"/><rect x="360" y="41" width="5" height="6" fill="#4ade80" rx="1"/>
+            <rect x="377" y="38" width="5" height="6" fill="#4ade80" rx="1"/>
+          </g>
+          <text x="4" y="10" fill="#378add" font-size="7">SMA50</text>
+          <text x="44" y="10" fill="#64748b" font-size="7">SMA200</text>
+          <text x="88" y="10" fill="#7c3aed" font-size="7">Bollinger bands</text>
+          <line x1="380" y1="38" x2="400" y2="38" stroke="#fbbf24" stroke-width=".8" stroke-dasharray="3 2"/>
+          <text x="340" y="125" fill="#475569" font-size="7">May 25</text>
+          <text x="240" y="125" fill="#475569" font-size="7">Jan 26</text>
+          <text x="130" y="125" fill="#475569" font-size="7">Sep 25</text>
+          <text x="10" y="125" fill="#475569" font-size="7">May 25</text>
+        </svg>
+      </div>
+      <div class="card">
+        <div class="lbl">All signals</div>
+        <div class="sig-row"><span class="sn">RSI (14)</span><span class="sv nu">46.5 — neutral</span></div>
+        <div class="sig-row"><span class="sn">MACD</span><span class="sv dn">Bearish cross</span></div>
+        <div class="sig-row"><span class="sn">vs SMA 20</span><span class="sv dn">-1.3%</span></div>
+        <div class="sig-row"><span class="sn">vs SMA 50</span><span class="sv dn">-1.2%</span></div>
+        <div class="sig-row"><span class="sn">vs SMA 200</span><span class="sv up">+12.4%</span></div>
+        <div class="sig-row"><span class="sn">ADX trend</span><span class="sv up">28 — strong</span></div>
+        <div class="sig-row"><span class="sn">BB position</span><span class="sv nu">mid band</span></div>
+        <div class="sig-row"><span class="sn">Volume</span><span class="sv up">1.8× avg</span></div>
+        <div class="sig-row"><span class="sn">News sentiment</span><span class="sv up">+0.32 positive</span></div>
+        <div class="sig-row"><span class="sn">Cluster group</span><span class="sv" style="color:#c4b5fd">Defensive (0)</span></div>
+        <div class="sig-row"><span class="sn">Sector</span><span class="sv" style="color:#7dd3fc">Energy (+8.4%)</span></div>
+      </div>
+    </div>
+
+    <div class="row r3">
+      <div class="card">
+        <div class="lbl">RSI (14) — live</div>
+        <svg width="100%" height="52" viewBox="0 0 180 52">
+          <rect width="180" height="52" fill="#0c0e14"/>
+          <line x1="0" y1="12" x2="180" y2="12" stroke="#f87171" stroke-width=".5" stroke-dasharray="3 2" opacity=".4"/>
+          <line x1="0" y1="40" x2="180" y2="40" stroke="#4ade80" stroke-width=".5" stroke-dasharray="3 2" opacity=".4"/>
+          <polyline points="0,44 20,40 40,34 60,30 80,35 100,28 120,22 140,25 160,28 180,30" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="2" y="10" fill="#f87171" font-size="7">70 — overbought</text>
+          <text x="2" y="50" fill="#4ade80" font-size="7">30 — oversold</text>
+        </svg>
+        <div style="font-size:14px;font-weight:500;color:#fbbf24;margin-top:3px">46.5</div>
+      </div>
+      <div class="card">
+        <div class="lbl">MACD — live</div>
+        <svg width="100%" height="52" viewBox="0 0 180 52">
+          <rect width="180" height="52" fill="#0c0e14"/>
+          <line x1="0" y1="26" x2="180" y2="26" stroke="#475569" stroke-width=".5"/>
+          <polyline points="0,32 30,29 60,26 90,23 120,20 150,18 180,16" fill="none" stroke="#378add" stroke-width="1.5"/>
+          <polyline points="0,36 30,33 60,29 90,26 120,23 150,22 180,20" fill="none" stroke="#f87171" stroke-width="1" stroke-dasharray="3 2"/>
+          <rect x="120" y="22" width="8" height="4" fill="#f87171" opacity=".5" rx="1"/>
+          <rect x="132" y="20" width="8" height="6" fill="#f87171" opacity=".5" rx="1"/>
+          <rect x="144" y="18" width="8" height="8" fill="#f87171" opacity=".5" rx="1"/>
+          <rect x="156" y="17" width="8" height="9" fill="#f87171" opacity=".5" rx="1"/>
+        </svg>
+        <div style="font-size:11px;color:#f87171;margin-top:3px">MACD below signal line — bearish</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Multi-horizon targets</div>
+        <div class="bar-wrap">
+          <div class="bar-lbl"><span>7 days</span><span class="up">+2.1%</span></div>
+          <div class="bar-bg"><div class="bar-fg" style="width:42%;background:#4ade80"></div></div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-lbl"><span>30 days</span><span class="up">+6.8%</span></div>
+          <div class="bar-bg"><div class="bar-fg" style="width:68%;background:#4ade80"></div></div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-lbl"><span>90 days</span><span class="up">+14.2%</span></div>
+          <div class="bar-bg"><div class="bar-fg" style="width:85%;background:#4ade80"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: AI ANALYST -->
+  <div class="page" id="p2">
+    <div class="row r12">
+      <div class="card" style="display:flex;flex-direction:column;gap:0">
+        <div class="lbl" style="margin-bottom:8px">Domain expert AI — powered by llama.cpp + finance LLM</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          <span class="chip on">RELIANCE</span><span class="chip">TCS</span><span class="chip">INFY</span><span class="chip">HDFCBANK</span><span class="chip">Market</span>
+        </div>
+        <div class="chat-bubble ca"><div class="ca-name">AI analyst</div>Good morning. Nifty50 is down 0.19% today. Energy and IT are leading. I'm tracking 32 buy signals across Nifty50. How can I help you?</div>
+        <div class="chat-bubble cu">Should I buy RELIANCE now?</div>
+        <div class="chat-bubble ca"><div class="ca-name">AI analyst · RELIANCE</div>RELIANCE is showing a mixed picture today. Price is down -0.20% but remains 12.4% above the 200-day MA — a strong long-term positive. RSI at 46.5 has room to move up. MACD is currently bearish (crossed below signal line 3 days ago) — this is a short-term concern.<br><br>My recommendation: <span style="color:#4ade80;font-weight:500">BUY on weakness</span>. Wait for RSI to dip below 42 or price near ₹2,780 (SMA50 support) for a better entry. Stop-loss at ₹2,690 (2×ATR). 30-day target: ₹3,041.</div>
+        <div class="chat-bubble cu">What's the market outlook for this week?</div>
+        <div class="chat-bubble ca"><div class="ca-name">AI analyst · Market</div>This week's key factors: RBI MPC meeting on June 6 — market expects no rate change. FII net buyers (+₹1,250 Cr today) — positive signal. Crude at $71.80 benefits energy stocks. Watch out for Fed minutes on Wednesday (USD/INR impact). Overall bias: <span style="color:#4ade80;font-weight:500">cautiously bullish</span>.</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input type="text" placeholder="Ask: Which stock should I buy this week?" style="flex:1;background:#0c0e14;border:1px solid #1e2235;border-radius:6px;padding:7px 10px;color:#94a3b8;font-size:11px" readonly/>
+          <div style="background:#1a2744;border:1px solid #378add;border-radius:6px;padding:7px 14px;color:#7dd3fc;font-size:11px;cursor:pointer">Send</div>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">
+          <div style="background:#0c0e14;border:1px solid #1e2235;border-radius:5px;padding:4px 8px;font-size:10px;color:#475569;cursor:pointer">Which stock to buy this week?</div>
+          <div style="background:#0c0e14;border:1px solid #1e2235;border-radius:5px;padding:4px 8px;font-size:10px;color:#475569;cursor:pointer">Top 3 picks by confidence</div>
+          <div style="background:#0c0e14;border:1px solid #1e2235;border-radius:5px;padding:4px 8px;font-size:10px;color:#475569;cursor:pointer">Explain RELIANCE risk</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card">
+          <div class="lbl">Live context fed to AI</div>
+          <div class="sig-row"><span class="sn">Stock</span><span class="sv" style="color:#7dd3fc">RELIANCE.NS</span></div>
+          <div class="sig-row"><span class="sn">Price</span><span class="sv">₹2,847 (-0.20%)</span></div>
+          <div class="sig-row"><span class="sn">ML signal</span><span class="sv up">BUY 71%</span></div>
+          <div class="sig-row"><span class="sn">RSI</span><span class="sv nu">46.5</span></div>
+          <div class="sig-row"><span class="sn">MACD</span><span class="sv dn">Bearish</span></div>
+          <div class="sig-row"><span class="sn">Sentiment</span><span class="sv up">+0.32</span></div>
+          <div class="sig-row"><span class="sn">Repo rate</span><span class="sv">5.25%</span></div>
+          <div class="sig-row"><span class="sn">FII today</span><span class="sv up">+₹2,140 Cr</span></div>
+        </div>
+        <div class="card">
+          <div class="lbl">LLM status</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#4ade80"></div>
+            <div style="font-size:11px;color:#4ade80;font-weight:500">llama-cli running</div>
+          </div>
+          <div style="font-size:10px;color:#64748b;margin-top:4px">Model: finance-llm.Q4_K_M<br>Threads: 4 · Ctx: 4096 · CPU</div>
+          <div style="margin-top:8px;background:#0c0e14;border-radius:5px;padding:6px;font-size:9px;color:#475569;font-family:monospace">llama-cli -m finance-llm.Q4_K_M.gguf<br>-n 512 --temp 0.3 --threads 4</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: SCREENER -->
+  <div class="page" id="p3">
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+      <div style="font-size:12px;color:#64748b">Filter by:</div>
+      <span class="tag tb" style="cursor:pointer;padding:4px 10px">All signals</span>
+      <span class="tag tg" style="cursor:pointer;padding:4px 10px">BUY only</span>
+      <span class="tag ty" style="cursor:pointer;padding:4px 10px">Confidence &gt;65%</span>
+      <span class="tag tp" style="cursor:pointer;padding:4px 10px">RSI &lt;40</span>
+      <div style="margin-left:auto;font-size:11px;color:#64748b">50 stocks · live data · updated 3 min ago</div>
+    </div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:6px 4px;border-bottom:1px solid #1e2235;font-size:10px;color:#475569;font-weight:500">
+        <span>Symbol</span><span>Price</span><span>Change</span><span>RSI</span><span>MACD</span><span>vs 200MA</span><span>Confidence</span><span>Signal</span><span>Rec</span>
+      </div>
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:5px 4px;border-bottom:1px solid #161b26;font-size:11px;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">RELIANCE</span><span style="color:#94a3b8">₹2,847</span><span class="up">+1.24%</span><span class="nu">46.5</span><span class="dn">Bear</span><span class="up">+12.4%</span><div class="bar-bg"><div class="bar-fg" style="width:71%;background:#4ade80"></div></div><span class="up">71%</span><span class="rec-pill buy-pill">BUY</span>
+      </div>
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:5px 4px;border-bottom:1px solid #161b26;font-size:11px;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">TCS</span><span style="color:#94a3b8">₹4,120</span><span class="up">+0.87%</span><span class="up">52.1</span><span class="up">Bull</span><span class="up">+9.2%</span><div class="bar-bg"><div class="bar-fg" style="width:68%;background:#4ade80"></div></div><span class="up">68%</span><span class="rec-pill buy-pill">BUY</span>
+      </div>
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:5px 4px;border-bottom:1px solid #161b26;font-size:11px;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">INFY</span><span style="color:#94a3b8">₹1,892</span><span class="up">+0.52%</span><span class="up">58.3</span><span class="up">Bull</span><span class="up">+7.8%</span><div class="bar-bg"><div class="bar-fg" style="width:64%;background:#4ade80"></div></div><span class="up">64%</span><span class="rec-pill buy-pill">BUY</span>
+      </div>
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:5px 4px;border-bottom:1px solid #161b26;font-size:11px;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">HDFCBANK</span><span style="color:#94a3b8">₹1,640</span><span class="dn">-0.18%</span><span class="nu">44.2</span><span class="nu">Flat</span><span class="up">+4.1%</span><div class="bar-bg"><div class="bar-fg" style="width:55%;background:#fbbf24"></div></div><span class="nu">55%</span><span class="rec-pill hold-pill">HOLD</span>
+      </div>
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:5px 4px;border-bottom:1px solid #161b26;font-size:11px;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">SBIN</span><span style="color:#94a3b8">₹812</span><span class="dn">-0.31%</span><span class="nu">41.0</span><span class="dn">Bear</span><span class="up">+2.2%</span><div class="bar-bg"><div class="bar-fg" style="width:49%;background:#fbbf24"></div></div><span class="nu">49%</span><span class="rec-pill hold-pill">HOLD</span>
+      </div>
+      <div style="display:grid;grid-template-columns:80px 70px 60px 55px 55px 55px 60px 55px 70px;gap:4px;padding:5px 4px;font-size:11px;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">ITC</span><span style="color:#94a3b8">₹438</span><span class="dn">-1.08%</span><span class="dn">32.1</span><span class="dn">Bear</span><span class="dn">-3.4%</span><div class="bar-bg"><div class="bar-fg" style="width:28%;background:#f87171"></div></div><span class="dn">28%</span><span class="rec-pill avoid-pill">AVOID</span>
+      </div>
+    </div>
+    <div style="font-size:10px;color:#475569;text-align:center;margin-top:6px">Showing 6 of 50 stocks · All Nifty50 ranked by ML confidence</div>
+  </div>
+
+  <!-- PAGE 4: MODEL REPORTS -->
+  <div class="page" id="p4">
+    <div class="row r3">
+      <div class="card"><div class="lbl">Best model</div><div class="big">XGBoost</div><div class="sub">AUC 0.69 · F1 0.71 on 2025 test</div></div>
+      <div class="card"><div class="lbl">Walk-forward (2020–25)</div><div class="big up">0.64 avg</div><div class="sub">All years above 0.58 baseline</div></div>
+      <div class="card"><div class="lbl">Trained on</div><div class="big">14 yrs</div><div class="sub">2012–2024 · 200 stocks · 2.1M rows</div></div>
+    </div>
+
+    <div class="row r2">
+      <div class="card">
+        <div class="lbl">SHAP — top features driving predictions</div>
+        <div style="margin-top:6px">
+          <div class="bar-wrap"><div class="bar-lbl"><span>dist_sma200</span><span style="color:#378add">0.142</span></div><div class="bar-bg"><div class="bar-fg" style="width:92%;background:#378add"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>rsi_14</span><span style="color:#378add">0.121</span></div><div class="bar-bg"><div class="bar-fg" style="width:78%;background:#378add"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>macd_hist</span><span style="color:#378add">0.106</span></div><div class="bar-bg"><div class="bar-fg" style="width:68%;background:#378add"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>sentiment_mean</span><span style="color:#a78bfa">0.094</span></div><div class="bar-bg"><div class="bar-fg" style="width:60%;background:#a78bfa"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>vol_30d</span><span style="color:#378add">0.082</span></div><div class="bar-bg"><div class="bar-fg" style="width:52%;background:#378add"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>adx_14</span><span style="color:#378add">0.071</span></div><div class="bar-bg"><div class="bar-fg" style="width:45%;background:#378add"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>repo_rate</span><span style="color:#fbbf24">0.062</span></div><div class="bar-bg"><div class="bar-fg" style="width:40%;background:#fbbf24"></div></div></div>
+          <div class="bar-wrap"><div class="bar-lbl"><span>bb_width</span><span style="color:#378add">0.052</span></div><div class="bar-bg"><div class="bar-fg" style="width:34%;background:#378add"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="lbl">Walk-forward AUC — year by year</div>
+        <div style="display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:10px;padding:0 4px">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:9px;color:#94a3b8">0.58</div>
+            <div style="width:100%;height:52px;background:#1d4ed8;border-radius:3px 3px 0 0"></div>
+            <div style="font-size:9px;color:#475569">2020</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:9px;color:#94a3b8">0.61</div>
+            <div style="width:100%;height:62px;background:#15803d;border-radius:3px 3px 0 0"></div>
+            <div style="font-size:9px;color:#475569">2021</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:9px;color:#94a3b8">0.64</div>
+            <div style="width:100%;height:68px;background:#15803d;border-radius:3px 3px 0 0"></div>
+            <div style="font-size:9px;color:#475569">2022</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:9px;color:#94a3b8">0.63</div>
+            <div style="width:100%;height:65px;background:#15803d;border-radius:3px 3px 0 0"></div>
+            <div style="font-size:9px;color:#475569">2023</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:9px;color:#94a3b8">0.67</div>
+            <div style="width:100%;height:76px;background:#15803d;border-radius:3px 3px 0 0"></div>
+            <div style="font-size:9px;color:#475569">2024</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:9px;color:#4ade80;font-weight:500">0.69</div>
+            <div style="width:100%;height:82px;background:#15803d;border-radius:3px 3px 0 0;border:1px solid #4ade80"></div>
+            <div style="font-size:9px;color:#475569">2025</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#475569;margin-top:4px;border-top:1px solid #1e2235;padding-top:4px">Target AUC ≥ 0.60 — all years passing</div>
+        <div class="row r2" style="margin-top:8px;gap:6px">
+          <div class="card" style="padding:7px">
+            <div class="lbl">Association rules</div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px;line-height:1.6">RSI_low + MACD_bull + Above_SMA200 → <span class="up">78% conf</span><br>Golden_cross + High_vol → <span class="up">74% conf</span></div>
+          </div>
+          <div class="card" style="padding:7px">
+            <div class="lbl">Clustering</div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px;line-height:1.6">4 clusters found<br>Defensive · Growth · Cyclical · Mid-cap</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pager">
+    <div class="dot-pg on" id="d0" onclick="pg(0)"></div>
+    <div class="dot-pg" id="d1" onclick="pg(1)"></div>
+    <div class="dot-pg" id="d2" onclick="pg(2)"></div>
+    <div class="dot-pg" id="d3" onclick="pg(3)"></div>
+    <div class="dot-pg" id="d4" onclick="pg(4)"></div>
+  </div>
+</div>
+
+<script>
+function pg(n){
+  for(let i=0;i<5;i++){
+    document.getElementById('p'+i).classList.remove('on');
+    document.getElementById('d'+i).classList.remove('on');
+    document.querySelectorAll('.nb')[i].classList.remove('on');
+  }
+  document.getElementById('p'+n).classList.add('on');
+  document.getElementById('d'+n).classList.add('on');
+  document.querySelectorAll('.nb')[n].classList.add('on');
+}
+</script>

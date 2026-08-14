@@ -1,0 +1,20 @@
+# Node dependencies
+src/dashboard/node_modules/
+src/dashboard/dist/
+src/dashboard/.env
+
+# Python cache & envs
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# Project logs & outputs
+logs/
+outputs/
+*.zip
+*.log
+.DS_Store

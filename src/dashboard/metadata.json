@@ -1,0 +1,6 @@
+{
+  "name": "Live Stock Analysis & AI Trading Dashboard",
+  "description": "Real-time stock market analysis dashboard featuring live candlestick charting, technical indicators, order book flow, paper trading execution, and actionable Buy/Sell trading insights powered by Gemini and Local LLMs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
