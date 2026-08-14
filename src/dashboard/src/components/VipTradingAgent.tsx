@@ -36,10 +36,10 @@ export const VipTradingAgent: React.FC<VipTradingAgentProps> = ({
 
   // Model Engine Settings
   const [provider, setProvider] = useState<'ollama' | 'gemini' | 'anthropic'>('ollama');
-  const [modelName, setModelName] = useState('llama3');
+  const [modelName, setModelName] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [showConfig, setShowConfig] = useState(false);
-  const [localModels, setLocalModels] = useState<string[]>(['llama3', 'llama2', 'mistral']);
+  const [localModels, setLocalModels] = useState<string[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +76,7 @@ export const VipTradingAgent: React.FC<VipTradingAgentProps> = ({
       if (localModels.length > 0) {
         setModelName(localModels[0]);
       } else {
-        setModelName('llama3');
+        setModelName('');
       }
     } else if (newProvider === 'gemini') {
       setModelName('gemini-1.5-pro');
@@ -225,9 +225,13 @@ Provide extremely sharp, institutional-grade answers. Keep your explanations con
                 className="bg-slate-900 border border-slate-800 rounded px-2 py-1 text-[11px] text-slate-200 focus:border-emerald-500 outline-none font-mono"
               >
                 {provider === 'ollama' && (
-                  localModels.map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))
+                  localModels.length > 0 ? (
+                    localModels.map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))
+                  ) : (
+                    <option value="">Ollama Offline / No Models</option>
+                  )
                 )}
                 {provider === 'gemini' && (
                   ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-pro'].map((m) => (

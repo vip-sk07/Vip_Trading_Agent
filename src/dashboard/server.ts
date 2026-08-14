@@ -442,9 +442,9 @@ app.get('/api/ai/local-models', async (req, res) => {
       return res.json({ success: true, models: uniqueNames });
     }
   } catch (err: any) {
-    console.warn('Ollama tags endpoint unreachable, using fallback defaults:', err.message);
+    console.warn('Ollama tags endpoint unreachable:', err.message);
   }
-  return res.json({ success: true, models: ['llama3', 'llama2', 'mistral', 'phi3'] });
+  return res.json({ success: false, models: [] });
 });
 
 // Server-side Gemini 3.7 Flash AI Analysis
