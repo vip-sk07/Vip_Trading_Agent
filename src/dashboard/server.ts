@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
+import { computeAdvancedML } from './serverMlEngine.js';
 
 dotenv.config();
 
@@ -333,6 +334,20 @@ Provide your technical verdict, confidence, entry zones, targets, stop-loss, and
     const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+      
+      // Inject Advanced ML predictions calculated on the backend
+      try {
+        parsed.ensemble = computeAdvancedML(
+          price,
+          indicators,
+          orderBook,
+          recentPrices || [],
+          news || []
+        );
+      } catch (mlErr) {
+        console.error('Advanced ML engine execution failed (local-proxy):', mlErr);
+      }
+
       return res.json(parsed);
     }
 
@@ -575,6 +590,20 @@ Key Indicators:
     const text = response.text;
     if (text) {
       const parsed = JSON.parse(text);
+      
+      // Inject Advanced ML predictions calculated on the backend
+      try {
+        parsed.ensemble = computeAdvancedML(
+          price,
+          indicators,
+          orderBook,
+          recentPrices || [],
+          news || []
+        );
+      } catch (mlErr) {
+        console.error('Advanced ML engine execution failed (analyze):', mlErr);
+      }
+
       return res.json(parsed);
     }
     throw new Error('Empty response from Gemini');

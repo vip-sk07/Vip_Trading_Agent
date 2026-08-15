@@ -9,6 +9,7 @@ import {
   TechnicalIndicators
 } from '../types';
 import { executeDmnRules } from './dmnEngine';
+import { computeAdvancedML } from '../../serverMlEngine';
 
 export const DEFAULT_LLM_CONFIG: LLMProviderConfig = {
   provider: 'ollama',
@@ -237,4 +238,20 @@ export function generateDeterministicQuantAnalysis(
     provider: config.provider,
     latencyMs: Date.now() - startTime
   };
+
+  // Inject Advanced ML predictions
+  try {
+    const formattedRecent = indicators.rsiHistory ? indicators.rsiHistory.map((c: number) => ({ c, h: c, l: c, v: 1000 })) : [];
+    result.ensemble = computeAdvancedML(
+      price,
+      indicators,
+      orderBook,
+      formattedRecent.length > 0 ? formattedRecent : [{ c: price, h: price, l: price, v: 1000 }],
+      news.map(n => ({ headline: n.headline, sentiment: n.sentiment, impact: n.impactLevel || 'MEDIUM' }))
+    );
+  } catch (mlErr) {
+    console.error('Client-side fallback ML computation failed:', mlErr);
+  }
+
+  return result;
 }

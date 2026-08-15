@@ -153,6 +153,27 @@ export interface AIAnalysisResult {
   modelUsed: string;
   provider: LLMProvider;
   latencyMs: number;
+  
+  // Ensemble ML predictions calculated on the backend
+  ensemble?: EnsembleMlOutput;
+}
+
+export interface EnsembleMlOutput {
+  oneWeekTrend: 'RISE' | 'FALL';
+  oneWeekConfidence: number;
+  linearRegressionTarget: number;
+  knnSignal: 'BUY' | 'SELL' | 'HOLD';
+  knnAccuracy: number;
+  svrLowerBound: number;
+  svrUpperBound: number;
+  randomForestForecast: 'RISE' | 'FALL';
+  randomForestConfidence: number;
+  xgboostBreakoutProb: number;
+  xgboostSignal: 'BULLISH' | 'BEARISH';
+  kmeansRegime: string;
+  qlearningAction: 'ACCUMULATE' | 'DISTRIBUTE' | 'HOLD';
+  lstmReturnEstimate: number;
+  newsCatalystImpact: number;
 }
 
 export interface LLMProviderConfig {

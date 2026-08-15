@@ -231,281 +231,198 @@ export const AiInsightPanel: React.FC<AiInsightPanelProps> = ({
         </div>
       )}
 
-      {/* Tabs Navigation */}
-      <div className="bg-slate-950/90 border-b border-slate-800 px-4 flex items-center gap-2 overflow-x-auto text-xs">
-        <button
-          onClick={() => setActiveTab('plan')}
-          className={`py-2.5 px-3 font-semibold border-b-2 transition-colors flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'plan' ? 'border-emerald-400 text-emerald-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Target className="w-3.5 h-3.5" />
-          <span>Action Plan</span>
-        </button>
 
-        <button
-          onClick={() => setActiveTab('technicals')}
-          className={`py-2.5 px-3 font-semibold border-b-2 transition-colors flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'technicals' ? 'border-emerald-400 text-emerald-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <BarChart className="w-3.5 h-3.5" />
-          <span>Technicals & Indicators</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('orderflow')}
-          className={`py-2.5 px-3 font-semibold border-b-2 transition-colors flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'orderflow' ? 'border-emerald-400 text-emerald-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5" />
-          <span>Order Flow / DOM</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('news')}
-          className={`py-2.5 px-3 font-semibold border-b-2 transition-colors flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'news' ? 'border-emerald-400 text-emerald-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <PieChart className="w-3.5 h-3.5" />
-          <span>Catalysts & Sentiment</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('risk')}
-          className={`py-2.5 px-3 font-semibold border-b-2 transition-colors flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'risk' ? 'border-emerald-400 text-emerald-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Shield className="w-3.5 h-3.5" />
-          <span>Risk & Sizing</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('ml')}
-          className={`py-2.5 px-3 font-semibold border-b-2 transition-colors flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'ml' ? 'border-emerald-400 text-emerald-300' : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <BrainCircuit className="w-3.5 h-3.5" />
-          <span>ML Models</span>
-        </button>
-      </div>
-
-      {/* Tab Content Body */}
-      <div className="p-4 flex-1 text-xs text-slate-300 min-h-[160px]">
-        {analysis ? (
-          <div>
-            {activeTab === 'plan' && (
-              <div className="space-y-3">
-                <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-lg">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                    Suggested Allocation
-                  </span>
-                  <p className="text-slate-300 text-xs font-semibold">
-                    Allocate <strong className="text-emerald-400">{analysis.recommendedPositionSizePct}%</strong> of portfolio risk parameters for this trade setup.
-                  </p>
+      {/* Dynamic Quantitative Ensemble Grid (Page 3 Core Engine) */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        {analysis && analysis.ensemble ? (
+          <div className="space-y-4">
+            
+            {/* 1-Week Horizon Trend Outlook Card */}
+            <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 transition-all shadow-lg ${
+              analysis.ensemble.oneWeekTrend === 'RISE'
+                ? 'bg-emerald-950/40 border-emerald-500/35 shadow-emerald-950/20'
+                : 'bg-rose-950/40 border-rose-500/35 shadow-rose-950/20'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-xl border shrink-0 ${
+                  analysis.ensemble.oneWeekTrend === 'RISE'
+                    ? 'bg-emerald-900/30 border-emerald-500/20 text-emerald-400'
+                    : 'bg-rose-900/30 border-rose-500/20 text-rose-400'
+                }`}>
+                  {analysis.ensemble.oneWeekTrend === 'RISE' ? (
+                    <TrendingUp className="w-6 h-6 animate-pulse" />
+                  ) : (
+                    <TrendingDown className="w-6 h-6 animate-pulse" />
+                  )}
                 </div>
-
-                {/* Key Drivers List */}
-                <div className="space-y-1.5 mt-2">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Key Confirmation Drivers:</span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                    {analysis.keyDrivers.map((driver, idx) => (
-                      <div key={idx} className="flex items-center gap-2 bg-slate-950/60 px-2.5 py-1.5 rounded border border-slate-800/70 text-[11px] font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                        <span className="text-slate-300">{driver}</span>
-                      </div>
-                    ))}
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">1-Week Trend Outlook</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className={`text-xl font-black font-mono tracking-tight ${
+                      analysis.ensemble.oneWeekTrend === 'RISE' ? 'text-emerald-400' : 'text-rose-400'
+                    }`}>
+                      {analysis.ensemble.oneWeekTrend === 'RISE' ? '📈 BULLISH RISE' : '📉 BEARISH FALL'}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-350">
+                      (Ensemble Conviction: <strong>{analysis.ensemble.oneWeekConfidence}%</strong>)
+                    </span>
                   </div>
                 </div>
               </div>
-            )}
+              
+              <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-800 p-2 rounded-lg font-mono">
+                <span className="text-[10px] text-slate-400 uppercase font-semibold">DMN Engine:</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                  analysis.verdict.includes('BUY') ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+                  analysis.verdict.includes('SELL') ? 'bg-rose-950 text-rose-300 border border-rose-800' :
+                  'bg-slate-800 text-slate-300 border border-slate-700'
+                }`}>
+                  {analysis.verdict.replace('_', ' ')}
+                </span>
+              </div>
+            </div>
 
-            {activeTab === 'technicals' && (
-              <div className="space-y-3">
-                <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-lg">
-                  <h4 className="font-bold text-slate-100 mb-1 text-xs">Technical Catalyst & Momentum Analysis</h4>
-                  <p className="text-slate-300 leading-relaxed">{analysis.technicalCatalyst}</p>
+            {/* High-Precision Ensemble Models Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              
+              {/* Card 1: Linear Regression & SVR Bounds */}
+              <div className="bg-slate-950/80 border border-cyan-900/40 p-3.5 rounded-xl shadow-md space-y-2">
+                <h4 className="font-extrabold text-cyan-300 text-xs flex items-center gap-1.5 border-b border-cyan-950 pb-2 mb-2">
+                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+                  Linear Regression & SVR
+                </h4>
+                <div className="space-y-2.5 font-mono text-[11px]">
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Regr Price Target</span>
+                    <span className="text-cyan-400 font-bold">${analysis.ensemble.linearRegressionTarget}</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">SVR Margin Tube</span>
+                    <span className="text-slate-200 font-bold">${analysis.ensemble.svrLowerBound} - ${analysis.ensemble.svrUpperBound}</span>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {activeTab === 'orderflow' && (
-              <div className="space-y-3">
-                <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-lg">
-                  <h4 className="font-bold text-slate-100 mb-1 text-xs">Order Flow & Level 2 Depth Dynamics</h4>
-                  <p className="text-slate-300 leading-relaxed">{analysis.orderFlowMomentum}</p>
+              {/* Card 2: Random Forest Ensemble Vote */}
+              <div className="bg-slate-950/80 border border-purple-900/40 p-3.5 rounded-xl shadow-md space-y-2">
+                <h4 className="font-extrabold text-purple-300 text-xs flex items-center gap-1.5 border-b border-purple-950 pb-2 mb-2">
+                  <Cpu className="w-3.5 h-3.5 text-purple-400" />
+                  Random Forest (100 Trees)
+                </h4>
+                <div className="space-y-2.5 font-mono text-[11px]">
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Tree Vote Outcome</span>
+                    <span className={`font-bold ${analysis.ensemble.randomForestForecast === 'RISE' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {analysis.ensemble.randomForestForecast}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Tree Probability</span>
+                    <span className="text-slate-200 font-bold">{analysis.ensemble.randomForestConfidence}%</span>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {activeTab === 'news' && (
-              <div className="space-y-3">
-                <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-lg">
-                  <h4 className="font-bold text-slate-100 mb-1 text-xs">Market Catalyst & Sentiment Evaluation</h4>
-                  <p className="text-slate-300 leading-relaxed">{analysis.newsSentimentInsight}</p>
+              {/* Card 3: XGBoost Volatility Gradient */}
+              <div className="bg-slate-950/80 border border-amber-900/40 p-3.5 rounded-xl shadow-md space-y-2">
+                <h4 className="font-extrabold text-amber-300 text-xs flex items-center gap-1.5 border-b border-amber-950 pb-2 mb-2">
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  XGBoost Classifier
+                </h4>
+                <div className="space-y-2.5 font-mono text-[11px]">
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Gradient Signal</span>
+                    <span className={`font-bold ${analysis.ensemble.xgboostSignal === 'BULLISH' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {analysis.ensemble.xgboostSignal}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Breakout Probability</span>
+                    <span className="text-slate-200 font-bold">{analysis.ensemble.xgboostBreakoutProb}%</span>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {activeTab === 'risk' && (
-              <div className="space-y-3">
-                <div className="bg-slate-950/80 border border-rose-900/60 p-3 rounded-lg">
-                  <h4 className="font-bold text-rose-300 mb-1 text-xs flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                    Risk Protocol & Capital Preservation
-                  </h4>
-                  <p className="text-slate-300 leading-relaxed">{analysis.riskWarning}</p>
+              {/* Card 4: K-Nearest Neighbors (KNN) */}
+              <div className="bg-slate-950/80 border border-teal-900/40 p-3.5 rounded-xl shadow-md space-y-2">
+                <h4 className="font-extrabold text-teal-300 text-xs flex items-center gap-1.5 border-b border-teal-950 pb-2 mb-2">
+                  <BrainCircuit className="w-3.5 h-3.5 text-teal-400" />
+                  K-Nearest Neighbors (K=5)
+                </h4>
+                <div className="space-y-2.5 font-mono text-[11px]">
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">KNN Return Bias</span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${
+                      analysis.ensemble.knnSignal === 'BUY' ? 'text-emerald-400 bg-emerald-950/50 border border-emerald-900/35' :
+                      analysis.ensemble.knnSignal === 'SELL' ? 'text-rose-400 bg-rose-950/50 border border-rose-900/35' :
+                      'text-slate-400 bg-slate-900'
+                    }`}>
+                      {analysis.ensemble.knnSignal}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Validation Accuracy</span>
+                    <span className="text-slate-200 font-bold">{analysis.ensemble.knnAccuracy}%</span>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {activeTab === 'ml' && (
-              <div className="space-y-3">
-                {(() => {
-                  const prices = candles.map(c => c.close);
-                  const regression = calculateLinearRegression(prices);
-                  const bayes = predictRegimeNaiveBayes(candles, indicators.ema20, indicators.vwap);
-                  const knn = predictPriceKNN(candles, 5, 0.7);
-                  
-                  return (
-                    <div className="space-y-3">
-                      {/* Naive Bayes Classifier Card */}
-                      <div className="bg-slate-950/80 border border-purple-900/40 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-extrabold text-purple-300 text-xs flex items-center gap-1.5">
-                            <Cpu className="w-3.5 h-3.5 text-purple-400" />
-                            Naive Bayes Regime Classifier
-                          </h4>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase font-mono ${
-                            bayes.regime === 'BULLISH' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
-                            bayes.regime === 'BEARISH' ? 'bg-rose-950 text-rose-300 border border-rose-800' :
-                            'bg-slate-800 text-slate-300 border border-slate-700'
-                          }`}>
-                            {bayes.regime}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mb-2.5 leading-normal">
-                          Retrospectively trained on the past <strong className="text-slate-200">{Math.max(0, candles.length - 17)} instances</strong> using RSI, EMA20 crossover, and VWAP features.
-                        </p>
-                        
-                        {/* Probabilities Bars */}
-                        <div className="space-y-2">
-                          <div>
-                            <div className="flex justify-between text-[10px] mb-0.5 text-slate-400 font-mono">
-                              <span>Bullish Probability</span>
-                              <span>{(bayes.probabilities.bullish * 100).toFixed(1)}%</span>
-                            </div>
-                            <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${bayes.probabilities.bullish * 100}%` }}></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-[10px] mb-0.5 text-slate-400 font-mono">
-                              <span>Bearish Probability</span>
-                              <span>{(bayes.probabilities.bearish * 100).toFixed(1)}%</span>
-                            </div>
-                            <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-rose-500 h-1.5 rounded-full" style={{ width: `${bayes.probabilities.bearish * 100}%` }}></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-[10px] mb-0.5 text-slate-400 font-mono">
-                              <span>Neutral Probability</span>
-                              <span>{(bayes.probabilities.neutral * 100).toFixed(1)}%</span>
-                            </div>
-                            <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-slate-500 h-1.5 rounded-full" style={{ width: `${bayes.probabilities.neutral * 100}%` }}></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Linear Regression Trendline Card */}
-                      <div className="bg-slate-950/80 border border-cyan-900/40 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-extrabold text-cyan-300 text-xs flex items-center gap-1.5">
-                            <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
-                            Linear Regression Trend Model
-                          </h4>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold font-mono ${
-                            regression.trend === 'UPWARD' ? 'text-emerald-400 bg-emerald-950/40' :
-                            regression.trend === 'DOWNWARD' ? 'text-rose-400 bg-rose-950/40' :
-                            'text-slate-400 bg-slate-800/40'
-                          }`}>
-                            {regression.trend === 'UPWARD' ? '↑ UPWARD' : regression.trend === 'DOWNWARD' ? '↓ DOWNWARD' : '→ FLAT'}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 text-[11px] font-mono leading-relaxed mt-2.5">
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Slope (m)</span>
-                            <span className="text-slate-200 font-bold">{regression.slope > 0 ? `+${regression.slope}` : regression.slope}</span>
-                          </div>
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">R² Fit Consistency</span>
-                            <span className="text-slate-200 font-bold">
-                              {regression.r2} {regression.r2 > 0.7 ? '(Strong)' : regression.r2 < 0.3 ? '(Choppy)' : '(Moderate)'}
-                            </span>
-                          </div>
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Predicted Price (Next period)</span>
-                            <span className="text-cyan-400 font-bold">${regression.predictedPrice}</span>
-                          </div>
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Regression Equation</span>
-                            <span className="text-slate-400">y = {regression.slope}x + {regression.intercept}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* KNN Pattern Predictor Card */}
-                      <div className="bg-slate-950/80 border border-emerald-900/40 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-extrabold text-emerald-300 text-xs flex items-center gap-1.5">
-                            <BrainCircuit className="w-3.5 h-3.5 text-emerald-400" />
-                            K-Nearest Neighbors (KNN) Predictor
-                          </h4>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase font-mono ${
-                            knn.signal === 'BUY' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
-                            knn.signal === 'SELL' ? 'bg-rose-950 text-rose-300 border border-rose-800' :
-                            'bg-slate-800 text-slate-300 border border-slate-700'
-                          }`}>
-                            {knn.signal}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mb-2.5 leading-normal">
-                          Splits historical candles into a **70/30** train/test dataset, evaluates Euclidean distance on 3-period returns, and validates performance.
-                        </p>
-
-                        <div className="grid grid-cols-2 gap-3 text-[11px] font-mono leading-relaxed mt-2.5">
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Train/Test Size</span>
-                            <span className="text-slate-200 font-bold">{knn.trainSize} / {knn.testSize} pts</span>
-                          </div>
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Test Accuracy (Directional)</span>
-                            <span className="text-emerald-400 font-bold">{knn.accuracyPct}%</span>
-                          </div>
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Test Mean Absolute Error (MAE)</span>
-                            <span className="text-slate-200 font-bold">{knn.mae}</span>
-                          </div>
-                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
-                            <span className="text-[10px] text-slate-500 block">Predicted Next Return</span>
-                            <span className={`${knn.predictedReturnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold`}>
-                              {knn.predictedReturnPct >= 0 ? `+${knn.predictedReturnPct}` : knn.predictedReturnPct}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
+              {/* Card 5: Neural LSTM Sequence Model */}
+              <div className="bg-slate-950/80 border border-indigo-900/40 p-3.5 rounded-xl shadow-md space-y-2">
+                <h4 className="font-extrabold text-indigo-300 text-xs flex items-center gap-1.5 border-b border-indigo-950 pb-2 mb-2">
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                  Long Short-Term Memory
+                </h4>
+                <div className="space-y-2.5 font-mono text-[11px]">
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">1W Return Estimate</span>
+                    <span className={`font-bold ${analysis.ensemble.lstmReturnEstimate >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {analysis.ensemble.lstmReturnEstimate >= 0 ? `+${analysis.ensemble.lstmReturnEstimate}` : analysis.ensemble.lstmReturnEstimate}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Regime (K-Means)</span>
+                    <span className="text-slate-350 font-bold text-[10px] truncate max-w-[120px]" title={analysis.ensemble.kmeansRegime}>
+                      {analysis.ensemble.kmeansRegime.split(' ')[0]} {analysis.ensemble.kmeansRegime.includes('High') ? '🔥' : '❄️'}
+                    </span>
+                  </div>
+                </div>
               </div>
-            )}
+
+              {/* Card 6: Q-Learning Timing & Catalysts */}
+              <div className="bg-slate-950/80 border border-emerald-900/40 p-3.5 rounded-xl shadow-md space-y-2">
+                <h4 className="font-extrabold text-emerald-300 text-xs flex items-center gap-1.5 border-b border-emerald-950 pb-2 mb-2">
+                  <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                  Q-Learning Timing & News
+                </h4>
+                <div className="space-y-2.5 font-mono text-[11px]">
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Execution Timing</span>
+                    <span className={`font-extrabold ${
+                      analysis.ensemble.qlearningAction === 'ACCUMULATE' ? 'text-emerald-400' :
+                      analysis.ensemble.qlearningAction === 'DISTRIBUTE' ? 'text-rose-400' : 'text-slate-400'
+                    }`}>
+                      {analysis.ensemble.qlearningAction}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-900/30 p-1.5 rounded border border-slate-850">
+                    <span className="text-slate-500 font-semibold">Catalyst Impact Score</span>
+                    <span className="text-amber-400 font-bold">{analysis.ensemble.newsCatalystImpact}/10</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Invalidation & Warnings footer log */}
+            <div className="bg-slate-950/60 border border-slate-850 p-3 rounded-lg text-[10px] font-mono text-slate-400 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-slate-350">Risk Warning:</strong> {analysis.riskWarning}
+                <div className="mt-1"><strong className="text-slate-350">Invalidation Trigger:</strong> {analysis.invalidationLevel}</div>
+              </div>
+            </div>
+
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center text-slate-400">
