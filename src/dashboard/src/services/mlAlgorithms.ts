@@ -243,3 +243,165 @@ export function predictRegimeNaiveBayes(
     }
   };
 }
+
+export interface KnnResult {
+  predictedReturnPct: number;
+  signal: 'BUY' | 'SELL' | 'HOLD';
+  accuracyPct: number;
+  mae: number;
+  trainSize: number;
+  testSize: number;
+  kNeighbors: number;
+}
+
+/**
+ * Dynamically fits a K-Nearest Neighbors (KNN) model on historical candles,
+ * performs a train/test split, calculates validation metrics,
+ * and generates a live prediction for the latest candle features.
+ */
+export function predictPriceKNN(
+  candles: Candle[],
+  k = 5,
+  trainSplit = 0.7
+): KnnResult {
+  const minCandles = 25;
+  if (candles.length < minCandles) {
+    return {
+      predictedReturnPct: 0,
+      signal: 'HOLD',
+      accuracyPct: 50.0,
+      mae: 0.0,
+      trainSize: 0,
+      testSize: 0,
+      kNeighbors: k
+    };
+  }
+
+  // 1. Feature Extraction helper
+  const closes = candles.map(c => c.close);
+  const getFeatures = (idx: number) => {
+    // Feature 1: Prev Close Return
+    const prevClose = closes[idx - 1];
+    const ret = prevClose !== 0 ? (closes[idx] - prevClose) / prevClose : 0;
+    
+    // Feature 2: Historical high-low range (Volatility proxy)
+    const hlRange = closes[idx] !== 0 ? (candles[idx].high - candles[idx].low) / closes[idx] : 0;
+
+    // Feature 3: RSI approximation (14 periods)
+    let gains = 0;
+    let losses = 0;
+    const startRsi = Math.max(0, idx - 14);
+    for (let j = startRsi + 1; j <= idx; j++) {
+      const diff = closes[j] - closes[j - 1];
+      if (diff >= 0) gains += diff;
+      else losses += Math.abs(diff);
+    }
+    const rsi = 100 - (100 / (1 + (gains / 14) / ((losses / 14) || 0.0001)));
+
+    return [ret * 100, hlRange * 100, rsi / 100]; // normalized features
+  };
+
+  // Target: Price return percentage over the next 3 candles
+  const getTarget = (idx: number) => {
+    const currentPrice = closes[idx];
+    const futurePrice = closes[idx + 3];
+    return currentPrice !== 0 ? ((futurePrice - currentPrice) / currentPrice) * 100 : 0;
+  };
+
+  // 2. Prepare full dataset
+  interface DataPoint {
+    features: number[];
+    target: number;
+    idx: number;
+  }
+  const dataset: DataPoint[] = [];
+  // Start from index 15 (needs rsi history) up to length - 3 (needs future target)
+  for (let i = 15; i < candles.length - 3; i++) {
+    dataset.push({
+      features: getFeatures(i),
+      target: getTarget(i),
+      idx: i
+    });
+  }
+
+  if (dataset.length < 10) {
+    return {
+      predictedReturnPct: 0,
+      signal: 'HOLD',
+      accuracyPct: 50.0,
+      mae: 0.0,
+      trainSize: 0,
+      testSize: 0,
+      kNeighbors: k
+    };
+  }
+
+  // 3. Train/Test Split
+  const splitIdx = Math.floor(dataset.length * trainSplit);
+  const trainData = dataset.slice(0, splitIdx);
+  const testData = dataset.slice(splitIdx);
+
+  // Euclidean distance helper
+  const calcDistance = (f1: number[], f2: number[]) => {
+    return Math.sqrt(
+      Math.pow(f1[0] - f2[0], 2) +
+      Math.pow(f1[1] - f2[1], 2) +
+      Math.pow(f1[2] - f2[2], 2)
+    );
+  };
+
+  // KNN core predictor function
+  const queryKNN = (queryFeatures: number[], library: DataPoint[]) => {
+    const distances = library.map(dp => ({
+      point: dp,
+      dist: calcDistance(queryFeatures, dp.features)
+    }));
+
+    // Sort by ascending distance and slice first K
+    distances.sort((a, b) => a.dist - b.dist);
+    const neighbors = distances.slice(0, Math.min(k, distances.length));
+
+    // Average target returns of neighbors
+    const avgTarget = neighbors.reduce((acc, curr) => acc + curr.point.target, 0) / (neighbors.length || 1);
+    return avgTarget;
+  };
+
+  // 4. Test Phase (Evaluate performance on test dataset)
+  let correctDirection = 0;
+  let totalError = 0;
+
+  testData.forEach(testPoint => {
+    const predicted = queryKNN(testPoint.features, trainData);
+    const actual = testPoint.target;
+
+    // Check directional match (both positive or both negative/flat)
+    if ((predicted >= 0 && actual >= 0) || (predicted < 0 && actual < 0)) {
+      correctDirection++;
+    }
+    totalError += Math.abs(predicted - actual);
+  });
+
+  const accuracyPct = testData.length > 0 ? (correctDirection / testData.length) * 100 : 50.0;
+  const mae = testData.length > 0 ? totalError / testData.length : 0.0;
+
+  // 5. Live Inference (Use current features query against train set)
+  const currentFeatures = getFeatures(candles.length - 1);
+  const livePrediction = queryKNN(currentFeatures, trainData);
+
+  let signal: 'BUY' | 'SELL' | 'HOLD' = 'HOLD';
+  if (livePrediction > 0.15) {
+    signal = 'BUY';
+  } else if (livePrediction < -0.15) {
+    signal = 'SELL';
+  }
+
+  return {
+    predictedReturnPct: Number(livePrediction.toFixed(3)),
+    signal,
+    accuracyPct: Number(accuracyPct.toFixed(1)),
+    mae: Number(mae.toFixed(4)),
+    trainSize: trainData.length,
+    testSize: testData.length,
+    kNeighbors: k
+  };
+}

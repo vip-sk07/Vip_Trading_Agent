@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { AIAnalysisResult, LLMProviderConfig, SignalVerdict, StrategyPersona } from '../types';
 
-import { calculateLinearRegression, predictRegimeNaiveBayes } from '../services/mlAlgorithms';
+import { calculateLinearRegression, predictRegimeNaiveBayes, predictPriceKNN } from '../services/mlAlgorithms';
 import { Candle, TechnicalIndicators } from '../types';
 
 interface AiInsightPanelProps {
@@ -369,6 +369,7 @@ export const AiInsightPanel: React.FC<AiInsightPanelProps> = ({
                   const prices = candles.map(c => c.close);
                   const regression = calculateLinearRegression(prices);
                   const bayes = predictRegimeNaiveBayes(candles, indicators.ema20, indicators.vwap);
+                  const knn = predictPriceKNN(candles, 5, 0.7);
                   
                   return (
                     <div className="space-y-3">
@@ -456,6 +457,47 @@ export const AiInsightPanel: React.FC<AiInsightPanelProps> = ({
                           <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
                             <span className="text-[10px] text-slate-500 block">Regression Equation</span>
                             <span className="text-slate-400">y = {regression.slope}x + {regression.intercept}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* KNN Pattern Predictor Card */}
+                      <div className="bg-slate-950/80 border border-emerald-900/40 p-3 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-extrabold text-emerald-300 text-xs flex items-center gap-1.5">
+                            <BrainCircuit className="w-3.5 h-3.5 text-emerald-400" />
+                            K-Nearest Neighbors (KNN) Predictor
+                          </h4>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase font-mono ${
+                            knn.signal === 'BUY' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+                            knn.signal === 'SELL' ? 'bg-rose-950 text-rose-300 border border-rose-800' :
+                            'bg-slate-800 text-slate-300 border border-slate-700'
+                          }`}>
+                            {knn.signal}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mb-2.5 leading-normal">
+                          Splits historical candles into a **70/30** train/test dataset, evaluates Euclidean distance on 3-period returns, and validates performance.
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-3 text-[11px] font-mono leading-relaxed mt-2.5">
+                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
+                            <span className="text-[10px] text-slate-500 block">Train/Test Size</span>
+                            <span className="text-slate-200 font-bold">{knn.trainSize} / {knn.testSize} pts</span>
+                          </div>
+                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
+                            <span className="text-[10px] text-slate-500 block">Test Accuracy (Directional)</span>
+                            <span className="text-emerald-400 font-bold">{knn.accuracyPct}%</span>
+                          </div>
+                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
+                            <span className="text-[10px] text-slate-500 block">Test Mean Absolute Error (MAE)</span>
+                            <span className="text-slate-200 font-bold">{knn.mae}</span>
+                          </div>
+                          <div className="bg-slate-900/40 p-2 rounded border border-slate-850">
+                            <span className="text-[10px] text-slate-500 block">Predicted Next Return</span>
+                            <span className={`${knn.predictedReturnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold`}>
+                              {knn.predictedReturnPct >= 0 ? `+${knn.predictedReturnPct}` : knn.predictedReturnPct}%
+                            </span>
                           </div>
                         </div>
                       </div>
