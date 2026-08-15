@@ -87,7 +87,7 @@ export const VipTradingAgent: React.FC<VipTradingAgentProps> = ({
   };
 
   const systemPrompt = `You are the VIP Trading Agent, an elite automated trading companion built into the Stock Market Terminal.
-Analyze the user's message using the active workspace values:
+Analyze the user's query using the active workspace values:
 - Active Ticker Symbol: ${symbol} (${quote.name}, Sector: ${quote.sector})
 - Live Price: $${quote.price.toFixed(2)} (Day Change: ${quote.changePercent.toFixed(2)}%)
 - Technical Indicators:
@@ -96,13 +96,13 @@ Analyze the user's message using the active workspace values:
   - RSI: ${indicators.rsi.toFixed(1)}
   - MACD Histogram: ${indicators.macd.histogram.toFixed(3)}
 
-You MUST format your entire response using this exact compact template (avoid writing long conversational paragraphs):
+You MUST format your entire response using this exact compact template. DO NOT include any text mentioning mathematical algorithm names (such as SVR, Random Forest, XGBoost, KNN, LSTM, K-Means, etc.) in your response:
 
 🏢 **Company**: ${quote.name} (${symbol})
-💵 **Price**: $${quote.price.toFixed(2)} (${quote.changePercent.toFixed(2)}%)
-📊 **Technical Verdict**: [BUY / SELL / DO NOT RECOMMEND] - [Brief 1-phrase reason]
-🔍 **Quick Setup**: [Target Entry, Stop Loss, and Take Profit levels, or "N/A"]
-📝 **Short Rationale**: [One simple sentence describing the technical setup or answer to the user's question]`;
+💵 **Current Price**: $${quote.price.toFixed(2)} (${quote.changePercent.toFixed(2)}%)
+📥 **Recommended Buy Price**: $${(quote.price * 0.997).toFixed(2)}
+📤 **1-Week Target Sell Price**: $${(quote.price + (indicators.atr || quote.price * 0.015) * 2.4).toFixed(2)}
+📝 **Short Rationale**: [One simple sentence explaining the entry setup or answering the user's specific question]`;
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -308,6 +308,33 @@ You MUST format your entire response using this exact compact template (avoid wr
                       [] // news placeholder
                     );
 
+                    const prices = formattedRecent.map(p => p.c);
+                    const minP = Math.min(...prices) * 0.995;
+                    const maxP = Math.max(...prices, ml.svrUpperBound, ml.linearRegressionTarget) * 1.005;
+                    
+                    const width = 340;
+                    const height = 140;
+                    const padding = 25;
+
+                    const scaleY = (val: number) => {
+                      const range = maxP - minP || 1;
+                      return height - padding - ((val - minP) / range) * (height - 2 * padding);
+                    };
+
+                    const scaleX = (idx: number) => {
+                      return padding + (idx / (prices.length - 1 || 1)) * (width - 2 * padding);
+                    };
+
+                    const pointsStr = prices.map((p, i) => `${scaleX(i).toFixed(1)},${scaleY(p).toFixed(1)}`).join(' ');
+
+                    const svrTopY = scaleY(ml.svrUpperBound);
+                    const svrBottomY = scaleY(ml.svrLowerBound);
+                    const buyEntryY = scaleY(quote.price * 0.997);
+                    
+                    const tpPrice = quote.price + (indicators.atr || quote.price * 0.015) * 2.4;
+                    const targetY = scaleY(tpPrice);
+                    const projectedTargetY = scaleY(ml.linearRegressionTarget);
+
                     return (
                       <div className="mt-3.5 pt-3.5 border-t border-slate-800/80 space-y-2.5">
                         <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-extrabold text-emerald-400">
@@ -315,91 +342,131 @@ You MUST format your entire response using this exact compact template (avoid wr
                           <span>Backend ML Quantitative Proof</span>
                         </div>
 
-                        {/* 1-Week Horizon Visual Indicator */}
-                        <div className={`p-2.5 rounded-lg border ${
+                        {/* Interactive SVG Plot */}
+                        <div className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 shadow-md">
+                          <span className="text-[9px] text-slate-400 font-bold block text-center mb-1.5 font-mono">
+                            📊 Price Trajectory & SVR Margin Corridor
+                          </span>
+                          <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible font-sans">
+                            {/* Grids */}
+                            <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="#1e293b" strokeDasharray="3,3" />
+                            <line x1={padding} y1={height / 2} x2={width - padding} y2={height / 2} stroke="#1e293b" strokeDasharray="3,3" />
+                            <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#1e293b" strokeDasharray="3,3" />
+
+                            {/* SVR Shaded Corridor Region */}
+                            <rect
+                              x={padding}
+                              y={Math.min(svrTopY, svrBottomY)}
+                              width={width - 2 * padding}
+                              height={Math.max(2, Math.abs(svrBottomY - svrTopY))}
+                              fill="rgba(6, 182, 212, 0.06)"
+                              stroke="rgba(6, 182, 212, 0.15)"
+                              strokeDasharray="2,2"
+                            />
+
+                            {/* Recommended Buy Entry Line */}
+                            <line
+                              x1={padding}
+                              y1={buyEntryY}
+                              x2={width - padding}
+                              y2={buyEntryY}
+                              stroke="#10b981"
+                              strokeWidth="1.2"
+                              strokeDasharray="3,3"
+                            />
+                            <text x={padding + 5} y={buyEntryY - 4} fill="#10b981" fontSize="7" className="font-mono font-bold">
+                              BUY LIMIT: ${(quote.price * 0.997).toFixed(2)}
+                            </text>
+
+                            {/* 1W Profit Target line */}
+                            <line
+                              x1={padding}
+                              y1={targetY}
+                              x2={width - padding}
+                              y2={targetY}
+                              stroke="#06b6d4"
+                              strokeWidth="1.2"
+                              strokeDasharray="4,4"
+                            />
+                            <text x={width - padding - 95} y={targetY - 4} fill="#06b6d4" fontSize="7" className="font-mono font-bold">
+                              TARGET: ${tpPrice.toFixed(2)}
+                            </text>
+
+                            {/* Price line path */}
+                            <polyline
+                              fill="none"
+                              stroke="url(#chatGrad)"
+                              strokeWidth="2"
+                              points={pointsStr}
+                            />
+                            
+                            {/* Forecast projection line */}
+                            <line
+                              x1={scaleX(prices.length - 1)}
+                              y1={scaleY(quote.price)}
+                              x2={width - padding}
+                              y2={projectedTargetY}
+                              stroke="#6366f1"
+                              strokeWidth="1.2"
+                              strokeDasharray="3,2"
+                            />
+
+                            {/* Current Price Highlight circles */}
+                            <circle
+                              cx={scaleX(prices.length - 1)}
+                              cy={scaleY(quote.price)}
+                              r="3.5"
+                              fill="#f43f5e"
+                              className="animate-ping"
+                            />
+                            <circle
+                              cx={scaleX(prices.length - 1)}
+                              cy={scaleY(quote.price)}
+                              r="3"
+                              fill="#f43f5e"
+                              stroke="#fff"
+                              strokeWidth="0.8"
+                            />
+
+                            {/* Gradient definition */}
+                            <defs>
+                              <linearGradient id="chatGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#3b82f6" />
+                                <stop offset="100%" stopColor="#10b981" />
+                              </linearGradient>
+                            </defs>
+                          </svg>
+
+                          <div className="flex justify-between items-center text-[8px] text-slate-500 font-mono pt-1">
+                            <span>← Past Closes</span>
+                            <span>SVR Resistance Tunnel →</span>
+                          </div>
+                        </div>
+
+                        {/* Model Consensus Bar */}
+                        <div className={`p-2.5 rounded-lg border flex items-center justify-between gap-3 ${
                           ml.oneWeekTrend === 'RISE'
-                            ? 'bg-emerald-950/20 border-emerald-900/30'
-                            : 'bg-rose-950/20 border-rose-900/30'
+                            ? 'bg-emerald-950/20 border-emerald-900/35 text-emerald-400'
+                            : 'bg-rose-950/20 border-rose-900/35 text-rose-400'
                         }`}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-slate-400 font-semibold font-mono">1-Week Outlook:</span>
-                            <span className={`text-[11px] font-black font-mono ${
-                              ml.oneWeekTrend === 'RISE' ? 'text-emerald-400' : 'text-rose-400'
-                            }`}>
-                              {ml.oneWeekTrend === 'RISE' ? '📈 BULLISH RISE' : '📉 BEARISH FALL'}
-                            </span>
+                          <div className="flex items-center gap-2">
+                            {ml.oneWeekTrend === 'RISE' ? (
+                              <TrendingUp className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <TrendingDown className="w-4 h-4 text-rose-400" />
+                            )}
+                            <div>
+                              <span className="text-[9px] text-slate-400 uppercase font-extrabold block">ML Ensemble Verdict</span>
+                              <span className="text-[10px] font-bold font-mono">
+                                1W OUTLOOK: {ml.oneWeekTrend === 'RISE' ? 'RISE' : 'FALL'}
+                              </span>
+                            </div>
                           </div>
-                          <div className="w-full bg-slate-950 rounded-full h-1.5 mt-1.5 overflow-hidden border border-slate-900">
-                            <div className={`h-1.5 rounded-full ${
-                              ml.oneWeekTrend === 'RISE' ? 'bg-emerald-500' : 'bg-rose-500'
-                            }`} style={{ width: `${ml.oneWeekConfidence}%` }}></div>
-                          </div>
-                          <span className="text-[9px] text-slate-500 font-mono mt-1 block">Ensemble Confidence: {ml.oneWeekConfidence}%</span>
+                          <span className="text-[9px] bg-slate-900/90 border border-slate-800 font-mono px-2 py-0.5 rounded text-slate-350">
+                            Conviction: {ml.oneWeekConfidence}%
+                          </span>
                         </div>
 
-                        {/* Model Verification Grid */}
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono leading-relaxed">
-                          
-                          {/* Linear Regression */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">Linear Regression Target</span>
-                            <span className="text-cyan-400 font-bold font-mono">${ml.linearRegressionTarget}</span>
-                          </div>
-
-                          {/* SVR boundaries */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">SVR Margin Tube</span>
-                            <span className="text-slate-250 font-bold font-mono">${ml.svrLowerBound} - ${ml.svrUpperBound}</span>
-                          </div>
-
-                          {/* Random Forest */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">Random Forest (100 Trees)</span>
-                            <span className={`font-bold font-mono ${ml.randomForestForecast === 'RISE' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                              {ml.randomForestForecast} ({ml.randomForestConfidence}%)
-                            </span>
-                          </div>
-
-                          {/* XGBoost */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">XGBoost Breakout Prob</span>
-                            <span className="text-slate-200 font-bold font-mono">{ml.xgboostBreakoutProb}%</span>
-                          </div>
-
-                          {/* KNN classifier */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">KNN (K=5)</span>
-                            <span className="text-slate-200 font-bold font-mono">{ml.knnSignal} ({ml.knnAccuracy}% acc)</span>
-                          </div>
-
-                          {/* LSTM returning */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">LSTM 1-Week return</span>
-                            <span className={`font-bold font-mono ${ml.lstmReturnEstimate >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                              {ml.lstmReturnEstimate >= 0 ? `+${ml.lstmReturnEstimate}` : ml.lstmReturnEstimate}%
-                            </span>
-                          </div>
-
-                          {/* K-Means */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">K-Means Volatility cluster</span>
-                            <span className="text-slate-350 font-bold text-[9px] truncate block" title={ml.kmeansRegime}>
-                              {ml.kmeansRegime.split(' ')[0]} {ml.kmeansRegime.includes('High') ? '🔥' : '❄️'}
-                            </span>
-                          </div>
-
-                          {/* Q-Learning */}
-                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
-                            <span className="text-slate-500 block">Q-Learning timing</span>
-                            <span className={`font-extrabold ${
-                              ml.qlearningAction === 'ACCUMULATE' ? 'text-emerald-400' :
-                              ml.qlearningAction === 'DISTRIBUTE' ? 'text-rose-400' : 'text-slate-400'
-                            }`}>
-                              {ml.qlearningAction}
-                            </span>
-                          </div>
-
-                        </div>
                       </div>
                     );
                   } catch (e) {
