@@ -427,6 +427,7 @@ app.post('/api/ai/chat', async (req, res) => {
       } else {
         return res.status(500).json({ success: false, message: `Ollama returned error status ${response.status}` });
       }
+    }
   } catch (err: any) {
     return res.status(500).json({ success: false, message: `API Proxy failed: ${err.message}` });
   }
