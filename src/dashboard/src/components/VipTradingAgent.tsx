@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, RefreshCw, Sparkles, User, AlertCircle, Sliders } from 'lucide-react';
+import { Send, Bot, RefreshCw, Sparkles, User, AlertCircle, Sliders, TrendingUp, TrendingDown } from 'lucide-react';
 import { LLMProviderConfig, Candle, TechnicalIndicators, StockQuote } from '../types';
+import { computeAdvancedML } from '../../serverMlEngine';
 
 interface VipTradingAgentProps {
   llmConfig: LLMProviderConfig;
@@ -290,10 +291,123 @@ You MUST format your entire response using this exact compact template (avoid wr
               {/* Bubble */}
               <div className={`rounded-xl p-3 text-xs leading-relaxed ${
                 isAssistant 
-                  ? 'bg-slate-900 border border-slate-800 text-slate-200 font-medium' 
+                  ? 'bg-slate-900 border border-slate-800 text-slate-200 font-medium w-full' 
                   : 'bg-emerald-600 text-slate-950 font-semibold'
               }`}>
                 <p className="whitespace-pre-wrap">{msg.content}</p>
+                
+                {/* Visual scorecard for stock analysis proof */}
+                {isAssistant && (msg.content.includes("🏢 **Company**") || msg.content.includes("Company:") || msg.content.toLowerCase().includes("buy") || msg.content.toLowerCase().includes("sell")) && (() => {
+                  try {
+                    const formattedRecent = candles ? candles.map((c) => ({ c: c.close, h: c.high, l: c.low, v: c.volume })) : [];
+                    const ml = computeAdvancedML(
+                      quote.price,
+                      indicators,
+                      null, // orderBook placeholder
+                      formattedRecent.length > 0 ? formattedRecent : [{ c: quote.price, h: quote.price, l: quote.price, v: 1000 }],
+                      [] // news placeholder
+                    );
+
+                    return (
+                      <div className="mt-3.5 pt-3.5 border-t border-slate-800/80 space-y-2.5">
+                        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-extrabold text-emerald-400">
+                          <Sliders className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Backend ML Quantitative Proof</span>
+                        </div>
+
+                        {/* 1-Week Horizon Visual Indicator */}
+                        <div className={`p-2.5 rounded-lg border ${
+                          ml.oneWeekTrend === 'RISE'
+                            ? 'bg-emerald-950/20 border-emerald-900/30'
+                            : 'bg-rose-950/20 border-rose-900/30'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-slate-400 font-semibold font-mono">1-Week Outlook:</span>
+                            <span className={`text-[11px] font-black font-mono ${
+                              ml.oneWeekTrend === 'RISE' ? 'text-emerald-400' : 'text-rose-400'
+                            }`}>
+                              {ml.oneWeekTrend === 'RISE' ? '📈 BULLISH RISE' : '📉 BEARISH FALL'}
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-950 rounded-full h-1.5 mt-1.5 overflow-hidden border border-slate-900">
+                            <div className={`h-1.5 rounded-full ${
+                              ml.oneWeekTrend === 'RISE' ? 'bg-emerald-500' : 'bg-rose-500'
+                            }`} style={{ width: `${ml.oneWeekConfidence}%` }}></div>
+                          </div>
+                          <span className="text-[9px] text-slate-500 font-mono mt-1 block">Ensemble Confidence: {ml.oneWeekConfidence}%</span>
+                        </div>
+
+                        {/* Model Verification Grid */}
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono leading-relaxed">
+                          
+                          {/* Linear Regression */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">Linear Regression Target</span>
+                            <span className="text-cyan-400 font-bold font-mono">${ml.linearRegressionTarget}</span>
+                          </div>
+
+                          {/* SVR boundaries */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">SVR Margin Tube</span>
+                            <span className="text-slate-250 font-bold font-mono">${ml.svrLowerBound} - ${ml.svrUpperBound}</span>
+                          </div>
+
+                          {/* Random Forest */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">Random Forest (100 Trees)</span>
+                            <span className={`font-bold font-mono ${ml.randomForestForecast === 'RISE' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {ml.randomForestForecast} ({ml.randomForestConfidence}%)
+                            </span>
+                          </div>
+
+                          {/* XGBoost */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">XGBoost Breakout Prob</span>
+                            <span className="text-slate-200 font-bold font-mono">{ml.xgboostBreakoutProb}%</span>
+                          </div>
+
+                          {/* KNN classifier */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">KNN (K=5)</span>
+                            <span className="text-slate-200 font-bold font-mono">{ml.knnSignal} ({ml.knnAccuracy}% acc)</span>
+                          </div>
+
+                          {/* LSTM returning */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">LSTM 1-Week return</span>
+                            <span className={`font-bold font-mono ${ml.lstmReturnEstimate >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {ml.lstmReturnEstimate >= 0 ? `+${ml.lstmReturnEstimate}` : ml.lstmReturnEstimate}%
+                            </span>
+                          </div>
+
+                          {/* K-Means */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">K-Means Volatility cluster</span>
+                            <span className="text-slate-350 font-bold text-[9px] truncate block" title={ml.kmeansRegime}>
+                              {ml.kmeansRegime.split(' ')[0]} {ml.kmeansRegime.includes('High') ? '🔥' : '❄️'}
+                            </span>
+                          </div>
+
+                          {/* Q-Learning */}
+                          <div className="bg-slate-950/80 border border-slate-850 p-2 rounded">
+                            <span className="text-slate-500 block">Q-Learning timing</span>
+                            <span className={`font-extrabold ${
+                              ml.qlearningAction === 'ACCUMULATE' ? 'text-emerald-400' :
+                              ml.qlearningAction === 'DISTRIBUTE' ? 'text-rose-400' : 'text-slate-400'
+                            }`}>
+                              {ml.qlearningAction}
+                            </span>
+                          </div>
+
+                        </div>
+                      </div>
+                    );
+                  } catch (e) {
+                    console.error("Chat visual builder failed:", e);
+                    return null;
+                  }
+                })()}
+
                 <span className={`text-[9px] block text-right mt-1 font-mono ${
                   isAssistant ? 'text-slate-500' : 'text-emerald-950'
                 }`}>

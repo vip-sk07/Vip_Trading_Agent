@@ -675,45 +675,14 @@ export default function App() {
 
   const renderVipTab = () => {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 h-[calc(100vh-130px)] min-h-[550px] overflow-hidden text-slate-200">
-        
-        {/* Left half (6 columns): AI Trading Intelligence */}
-        <div className="lg:col-span-6 flex flex-col h-full overflow-hidden">
-          <AiInsightPanel
-            analysis={aiAnalysis}
-            isLoading={isAiLoading}
-            llmConfig={llmConfig}
-            userCash={portfolio.cash}
-            currentPrice={quote.price}
-            candles={candles}
-            indicators={indicators}
-            onTriggerAnalysis={(persona?: StrategyPersona) => {
-              if (persona) {
-                const updatedCfg = { ...llmConfig, persona };
-                setLlmConfig(updatedCfg);
-                triggerAIAnalysis(symbol, quote, indicators, orderBook, news, candles, updatedCfg);
-              } else {
-                triggerAIAnalysis();
-              }
-            }}
-            onApplyTradePlan={(side, shares, limitPrice, tp, sl) => {
-              setPrefillOrder({ side, shares, limitPrice, tp, sl });
-            }}
-            onOpenLlmConfig={() => setIsLlmConfigOpen(true)}
-          />
-        </div>
-
-        {/* Right half (6 columns): VIP Trading Agent Chat */}
-        <div className="lg:col-span-6 flex flex-col h-full overflow-hidden">
-          <VipTradingAgent
-            llmConfig={llmConfig}
-            symbol={symbol}
-            quote={quote}
-            indicators={indicators}
-            candles={candles}
-          />
-        </div>
-
+      <div className="w-full h-[calc(100vh-130px)] min-h-[550px] overflow-hidden text-slate-200">
+        <VipTradingAgent
+          llmConfig={llmConfig}
+          symbol={symbol}
+          quote={quote}
+          indicators={indicators}
+          candles={candles}
+        />
       </div>
     );
   };
