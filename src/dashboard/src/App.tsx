@@ -653,8 +653,8 @@ export default function App() {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 h-[calc(100vh-130px)] min-h-[550px] overflow-hidden text-slate-200">
         
-        {/* Left Area: Watchlist Panel (6 columns) */}
-        <div className="lg:col-span-6 flex flex-col h-full overflow-hidden">
+        {/* Left Area: Watchlist Panel (8 columns) */}
+        <div className="lg:col-span-8 flex flex-col h-full overflow-hidden">
           <WatchlistPanel
             watchlist={watchlist}
             currentSymbol={symbol}
@@ -664,8 +664,8 @@ export default function App() {
           />
         </div>
 
-        {/* Right Area: News Sentiment Feed (6 columns) */}
-        <div className="lg:col-span-6 flex flex-col h-full overflow-hidden">
+        {/* Right Area: News Sentiment Feed (4 columns) */}
+        <div className="lg:col-span-4 flex flex-col h-full overflow-hidden">
           <NewsSentimentPanel news={news} currentSymbol={symbol} />
         </div>
 
