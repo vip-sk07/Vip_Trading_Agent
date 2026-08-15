@@ -8,6 +8,7 @@ import {
   StockQuote,
   TechnicalIndicators
 } from '../types';
+import { executeDmnRules } from './dmnEngine';
 
 export const DEFAULT_LLM_CONFIG: LLMProviderConfig = {
   provider: 'ollama',
@@ -112,30 +113,26 @@ export function generateDeterministicQuantAnalysis(
   const price = quote.price;
   const atr = indicators.atr || (price * 0.015);
   const rsi = indicators.rsi;
-  const isBullishEma = price > indicators.ema20 && indicators.ema20 > indicators.ema50;
-  const isBearishEma = price < indicators.ema20 && indicators.ema20 < indicators.ema50;
-  const macdBullish = indicators.macd.histogram > 0 || indicators.macd.trend.includes('BULLISH');
   const buyerDominance = orderBook.buyerDominance;
 
-  let bullishScore = 0;
-  let bearishScore = 0;
-
-  if (isBullishEma) bullishScore += 30;
-  if (isBearishEma) bearishScore += 30;
-  if (rsi < 35) bullishScore += 25; // Oversold bounce
-  else if (rsi > 70) bearishScore += 25; // Overbought
-  else if (rsi >= 50 && rsi <= 65) bullishScore += 15;
-  else if (rsi < 50 && rsi >= 35) bearishScore += 15;
-
-  if (macdBullish) bullishScore += 20; else bearishScore += 20;
-  if (buyerDominance > 55) bullishScore += 15; else if (buyerDominance < 45) bearishScore += 15;
-  if (price > indicators.vwap) bullishScore += 10; else bearishScore += 10;
-
-  // News impact
   const bullishNewsCount = news.filter((n) => n.sentiment === 'BULLISH').length;
   const bearishNewsCount = news.filter((n) => n.sentiment === 'BEARISH').length;
-  bullishScore += bullishNewsCount * 8;
-  bearishScore += bearishNewsCount * 8;
+
+  // Execute standard DMN rules dynamically
+  const dmnResult = executeDmnRules({
+    rsi,
+    price,
+    ema20: indicators.ema20,
+    ema50: indicators.ema50,
+    vwap: indicators.vwap,
+    macdHistogram: indicators.macd.histogram,
+    buyerDominance,
+    bullishNewsCount,
+    bearishNewsCount
+  });
+
+  const bullishScore = dmnResult.bullishScore;
+  const bearishScore = dmnResult.bearishScore;
 
   let verdict: SignalVerdict = 'NEUTRAL';
   let confidence = 55;
@@ -154,7 +151,7 @@ export function generateDeterministicQuantAnalysis(
   const isLong = verdict === 'STRONG_BUY' || verdict === 'BUY';
   const isShort = verdict === 'STRONG_SELL' || verdict === 'SELL';
 
-  // Entry, TP, SL calculation based on ATR and Pivot Points
+  // Entry boundary parameters
   let entryMin = Number((price * 0.997).toFixed(2));
   let entryMax = Number((price * 1.002).toFixed(2));
   let optimalEntry = price;
@@ -163,7 +160,14 @@ export function generateDeterministicQuantAnalysis(
   let tp2 = Number((price + (isLong ? atr * 2.4 : -atr * 2.4)).toFixed(2));
   let tp3 = Number((price + (isLong ? atr * 4.0 : -atr * 4.0)).toFixed(2));
 
+  // Risk consistency check: stops calculated from lowest entry parameters for longs,
+  // and highest entry parameters for shorts to prevent overlapping risk profiles
   let stopLossPrice = Number((price + (isLong ? -atr * 1.0 : atr * 1.0)).toFixed(2));
+  if (isLong) {
+    stopLossPrice = Number((entryMin - atr * 1.0).toFixed(2));
+  } else if (isShort) {
+    stopLossPrice = Number((entryMax + atr * 1.0).toFixed(2));
+  }
   let percentRisk = Number(((Math.abs(price - stopLossPrice) / price) * 100).toFixed(2));
 
   if (!isLong && !isShort) {
