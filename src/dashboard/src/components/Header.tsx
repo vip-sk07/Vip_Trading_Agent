@@ -116,44 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
           </div>
 
-          {/* Audio Chime Toggle */}
-          <button
-            id="sound-toggle-btn"
-            onClick={onToggleSound}
-            className={`p-2 rounded-lg border transition-colors ${
-              soundEnabled
-                ? 'bg-slate-800/80 border-slate-700 text-slate-200 hover:text-white'
-                : 'bg-slate-900/80 border-slate-800 text-slate-500 hover:text-slate-400'
-            }`}
-            title={soundEnabled ? 'Mute Trade & Alert Sounds' : 'Enable Trade & Alert Sounds'}
-          >
-            {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
-          </button>
-
-          {/* Price Alerts Modal Trigger */}
-          <button
-            id="alerts-modal-btn"
-            onClick={onOpenAlertsModal}
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white relative transition-colors"
-            title="Manage Price & RSI Alerts"
-          >
-            <Bell className="w-4 h-4" />
-            {unreadAlertsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-rose-500 text-white font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce">
-                {unreadAlertsCount}
-              </span>
-            )}
-          </button>
-
-          {/* Manual Refresh */}
-          <button
-            id="refresh-btn"
-            onClick={onRefreshData}
-            className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white transition-colors"
-            title="Refresh All Indicators & Quotes"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
+          {/* Only Stream simulation controls kept */}
         </div>
       </div>
     </header>
